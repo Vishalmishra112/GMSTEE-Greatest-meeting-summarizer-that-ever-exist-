@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI powered GMSTEE</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            max-width: 1000px; 
+            margin: 30px auto; 
+            padding: 20px; 
+            background-color: #121212; 
+            color: #e0e0e0; 
+        }
+
+        /* Centered Header */
+        .header-container { text-align: center; margin-bottom: 30px; }
+        .header-container h1 { color: #ffffff; margin: 0; font-size: 2.2em; }
+        .header-container .subtitle { font-size: 0.95em; color: #58a6ff; margin-top: 6px; font-weight: 500; }
+
+        /* Configuration Panel - Stacked Vertically */
+        .config-panel {
+            background-color: #1e1e1e; border: 1px solid #333; border-radius: 10px; padding: 25px; margin-bottom: 25px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .config-group { display: flex; flex-direction: column; gap: 12px; }
+        .config-label { color: #58a6ff; font-weight: bold; font-size: 1.1em; margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .config-options { display: flex; gap: 15px; }
+        .config-box { 
+            flex: 1; background-color: #121212; border: 1px solid #444; border-radius: 8px; padding: 12px 15px; 
+            display: flex; align-items: center; cursor: pointer; transition: border-color 0.2s, background-color 0.2s; 
+        }
+        .config-box:hover { border-color: #58a6ff; background-color: #1a1a1a; }
+        .config-box input[type="radio"] { cursor: pointer; transform: scale(1.2); accent-color: #238636; margin-right: 10px; margin-top: 0; }
+        .config-box span { font-size: 1.05em; color: #ccc; user-select: none; }
+
+        /* Upload Options */
+        .upload-row { display: flex; gap: 15px; justify-content: space-between; margin-bottom: 25px; }
+        .upload-card {
+            flex: 1; background-color: #1e1e1e; border: 1px dashed #555; border-radius: 10px; padding: 20px; text-align: center; transition: border-color 0.2s;
+        }
+        .upload-card:hover { border-color: #58a6ff; }
+        .upload-card h3 { margin-top: 0; font-size: 1.1em; color: #ffffff; margin-bottom: 15px; }
+        .upload-card input[type="file"] { display: none; }
+        .btn-browse {
+            padding: 8px 16px; background-color: #1f6feb; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;
+        }
+        .btn-browse:hover { background-color: #388bfd; }
+
+        /* File List Table */
+        .file-manager { margin-bottom: 25px; background-color: #1e1e1e; border-radius: 10px; padding: 20px; border: 1px solid #333; }
+        .file-manager h3 { margin-top: 0; margin-bottom: 15px; color: #fff; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px; border-bottom: 1px solid #333; }
+        th { color: #888; font-weight: 600; font-size: 0.9em; text-transform: uppercase; }
+        td { color: #ccc; font-size: 0.95em; }
+        .btn-remove { background-color: transparent; border: none; color: #f85149; font-size: 1.2em; cursor: pointer; font-weight: bold; }
+        .btn-remove:hover { color: #ff7b72; }
+
+        /* Status Checks */
+        .status-row { display: flex; gap: 15px; justify-content: space-between; margin-bottom: 25px; }
+        .status-badge { flex: 1; background-color: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; text-align: center; font-size: 0.9em; font-weight: 600; color: #888; transition: all 0.3s ease; }
+        .status-badge.active { border-color: #238636; color: #3fb950; background-color: rgba(35, 134, 54, 0.15); }
+        .status-badge.error { border-color: #da3633; color: #f85149; background-color: rgba(218, 54, 51, 0.15); }
+
+        /* Process Button */
+        .process-container { text-align: center; margin-bottom: 25px; }
+        .btn-main { padding: 12px 40px; background-color: #238636; color: #ffffff; border: none; border-radius: 6px; cursor: pointer; font-size: 1.2em; font-weight: bold; }
+        .btn-main:hover:not(:disabled) { background-color: #2ea043; }
+        .btn-main:disabled { background-color: #333; color: #777; cursor: not-allowed; }
+
+        /* Results & Download */
+        .result-card { border: 1px solid #333; background-color: #1e1e1e; padding: 25px; border-radius: 10px; display: none; }
+        .result-card h3 { color: #58a6ff; margin-top: 15px; }
+        pre { background: #121212; color: #79c0ff; padding: 15px; border-radius: 8px; white-space: pre-wrap; border: 1px solid #333; font-family: monospace; }
+        
+        .download-bar { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #333; }
+        select { padding: 8px; border-radius: 5px; background-color: #121212; color: #fff; border: 1px solid #444; }
+        .btn-download { padding: 8px 16px; background-color: #8957e5; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-download:hover { background-color: #9e6cf2; }
+
+        .footer { text-align: center; margin-top: 50px; font-size: 0.85em; color: #777; border-top: 1px solid #2d2d2d; padding-top: 20px; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h1>AI powered GMSTEE</h1>
+        <p class="subtitle">(Greatest Meeting Summarizer That Ever Exist)</p>
+    </div>
+
+    <!-- Configuration Panel (Stacked Vertically) -->
+    <div class="config-panel">
+        <div class="config-group">
+            <div class="config-label">Meeting Type</div>
+            <div class="config-options">
+                <label class="config-box">
+                    <input type="radio" name="processMode" value="single">
+                    <span>Single Meeting</span>
+                </label>
+                <label class="config-box">
+                    <input type="radio" name="processMode" value="stitched" checked>
+                    <span>Stitched Meeting</span>
+                </label>
+            </div>
+        </div>
+        <div class="config-group">
+            <div class="config-label">Format</div>
+            <div class="config-options">
+                <label class="config-box">
+                    <input type="radio" name="formatMode" value="single">
+                    <span>Single File Format</span>
+                </label>
+                <label class="config-box">
+                    <input type="radio" name="formatMode" value="multiple" checked>
+                    <span>Multiple File Format</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Options -->
+    <div class="upload-row">
+        <div class="upload-card">
+            <h3>📄 Document</h3>
+            <button class="btn-browse" onclick="document.getElementById('pdfInput').click()">Browse Docs</button>
+            <input type="file" id="pdfInput" accept=".pdf, .docx" multiple onchange="handleFiles(this.files, 'Document')">
+        </div>
+        <div class="upload-card">
+            <h3>🎙️ Audio</h3>
+            <button class="btn-browse" onclick="document.getElementById('audioInput').click()">Browse Audio</button>
+            <input type="file" id="audioInput" accept=".mp3, .wav, .m4a, .ogg, .flac" multiple onchange="handleFiles(this.files, 'Audio')">
+        </div>
+        <div class="upload-card">
+            <h3>🎬 Video</h3>
+            <button class="btn-browse" onclick="document.getElementById('videoInput').click()">Browse Video</button>
+            <input type="file" id="videoInput" accept=".mp4, .mkv, .avi, .mov" multiple onchange="handleFiles(this.files, 'Video')">
+        </div>
+    </div>
+
+    <!-- Selected Files Table -->
+    <div class="file-manager">
+        <h3>Selected Files</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Name</th>
+                    <th>Format</th>
+                    <th>Duration</th>
+                    <th>Size</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="fileTableBody">
+                <!-- Rows populated by JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3 Status Checks -->
+    <div class="status-row">
+        <div class="status-badge" id="statusFrontend">Frontend: ⏳ Initializing</div>
+        <div class="status-badge" id="statusTranscription">AI Transcription: ⏳ Idle</div>
+        <div class="status-badge" id="statusSystem">System Pipeline: ⏳ Idle</div>
+    </div>
+
+    <!-- Process Button (Moved below status checks) -->
+    <div class="process-container">
+        <button class="btn-main" id="processBtn" onclick="processMeeting()">Start</button>
+    </div>
+
+    <!-- Results Display -->
+    <div class="result-card" id="resultCard">
+        <h3>Summary</h3>
+        <p id="summaryText"></p>
+        <h3>Action Items</h3>
+        <pre id="actionItemsText"></pre>
+        <h3>Transcript</h3>
+        <p id="transcriptText" style="font-size: 0.9em; color: #aaa;"></p>
+        
+        <!-- Download Bar -->
+        <div class="download-bar">
+            <select id="downloadFormat">
+                <option value="txt">Text File (.txt)</option>
+                <option value="md">Markdown (.md)</option>
+                <option value="json">JSON (.json)</option>
+            </select>
+            <button class="btn-download" onclick="downloadResults()">Download Result</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        Created by Vishal Kumar Mishra | VIT Bhopal University<br>
+        Email: Vishal0mishra112@gmail.com
+    </div>
+
+    <script>
+        let globalFiles = [];
+        let globalResults = null;
+
+        // On Load Health Check
+        window.onload = async function() {
+            const statusFrontend = document.getElementById('statusFrontend');
+            const statusSystem = document.getElementById('statusSystem');
+            try {
+                const res = await fetch('/health');
+                if (res.ok) {
+                    statusFrontend.className = "status-badge active";
+                    statusFrontend.textContent = "Frontend: ✅ Working";
+                    statusSystem.className = "status-badge active";
+                    statusSystem.textContent = "System Pipeline: ✅ Online";
+                } else throw new Error();
+            } catch (e) {
+                statusFrontend.className = "status-badge active";
+                statusFrontend.textContent = "Frontend: ✅ Working";
+                statusSystem.className = "status-badge error";
+                statusSystem.textContent = "System Pipeline: ❌ Offline";
+            }
+        };
+
+        function handleFiles(files, category) {
+            const formatMode = document.querySelector('input[name="formatMode"]:checked').value;
+            
+            // If single format mode is checked, clear other files first
+            if (formatMode === 'single') {
+                globalFiles = [];
+            }
+
+            Array.from(files).forEach(file => {
+                const ext = file.name.split('.').pop().toUpperCase();
+                const size = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+                
+                const fileObj = { rawFile: file, name: file.name, format: ext, size: size, duration: "Calculating..." };
+                globalFiles.push(fileObj);
+                
+                const index = globalFiles.length - 1;
+
+                // Calculate duration for media
+                if (category !== 'Document') {
+                    const url = URL.createObjectURL(file);
+                    const media = document.createElement(category === 'Audio' ? 'audio' : 'video');
+                    media.src = url;
+                    media.onloadedmetadata = function() {
+                        const mins = Math.floor(media.duration / 60);
+                        const secs = Math.floor(media.duration % 60);
+                        globalFiles[index].duration = `${mins}m ${secs}s`;
+                        renderTable();
+                        URL.revokeObjectURL(url);
+                    };
+                } else {
+                    globalFiles[index].duration = "N/A";
+                }
+            });
+            renderTable();
+        }
+
+        function removeFile(index) {
+            globalFiles.splice(index, 1);
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('fileTableBody');
+            tbody.innerHTML = '';
+            
+            if (globalFiles.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">No files selected.</td></tr>';
+                return;
+            }
+
+            globalFiles.forEach((f, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i + 1}</td>
+                    <td>${f.name}</td>
+                    <td>${f.format}</td>
+                    <td>${f.duration}</td>
+                    <td>${f.size}</td>
+                    <td><button class="btn-remove" onclick="removeFile(${i})">✕</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Initialize empty table
+        renderTable();
+
+        async function processMeeting() {
+            if (globalFiles.length === 0) {
+                alert("Please add files to the table first.");
+                return;
+            }
+
+            const statusTranscription = document.getElementById('statusTranscription');
+            const statusSystem = document.getElementById('statusSystem');
+            const resultCard = document.getElementById('resultCard');
+            const btn = document.getElementById('processBtn');
+
+            btn.disabled = true;
+            btn.textContent = "Processing...";
+            resultCard.style.display = 'none';
+
+            // Reset Badges for Processing
+            statusTranscription.className = "status-badge";
+            statusTranscription.textContent = `AI Transcription: ⏳ Processing...`;
+            statusSystem.className = "status-badge";
+            statusSystem.textContent = "System Pipeline: ⏳ Running Llama 3...";
+
+            const formData = new FormData();
+            globalFiles.forEach(f => formData.append("files", f.rawFile));
+
+            try {
+                const response = await fetch('/process-meeting', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (data.status === "success") {
+                    statusTranscription.className = "status-badge active";
+                    statusTranscription.textContent = "AI Transcription: ✅ Complete";
+                    statusSystem.className = "status-badge active";
+                    statusSystem.textContent = "System Pipeline: ✅ Complete";
+                    
+                    globalResults = data.data; // Store for downloading
+                    
+                    document.getElementById('summaryText').textContent = data.data.summary;
+                    document.getElementById('actionItemsText').textContent = data.data.action_items;
+                    document.getElementById('transcriptText').textContent = data.data.transcript;
+                    resultCard.style.display = 'block';
+                } else {
+                    statusTranscription.className = "status-badge error";
+                    statusTranscription.textContent = "AI Transcription: ❌ Error";
+                    statusSystem.className = "status-badge error";
+                    statusSystem.textContent = "System Pipeline: ❌ Failed";
+                }
+            } catch (err) {
+                statusTranscription.className = "status-badge error";
+                statusTranscription.textContent = "AI Transcription: ❌ Failed";
+                statusSystem.className = "status-badge error";
+                statusSystem.textContent = "System Pipeline: ❌ Connection Lost";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Start";
+            }
+        }
+
+        function downloadResults() {
+            if (!globalResults) return;
+
+            const format = document.getElementById('downloadFormat').value;
+            let content = "";
+            let filename = "GMSTEE_Result";
+            let mimeType = "text/plain";
+
+            if (format === 'json') {
+                content = JSON.stringify(globalResults, null, 4);
+                filename += ".json";
+                mimeType = "application/json";
+            } else if (format === 'md') {
+                content = `# Meeting Summary\n\n${globalResults.summary}\n\n## Action Items\n\n${globalResults.action_items}\n\n## Transcript\n\n${globalResults.transcript}`;
+                filename += ".md";
+            } else {
+                content = `MEETING SUMMARY\n----------------\n${globalResults.summary}\n\nACTION ITEMS\n----------------\n${globalResults.action_items}\n\nTRANSCRIPT\n----------------\n${globalResults.transcript}`;
+                filename += ".txt";
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
